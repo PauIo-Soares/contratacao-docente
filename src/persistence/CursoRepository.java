@@ -1,9 +1,10 @@
 package persistence;
 
 import model.Curso;
+import estrutura.Fila;
+import estrutura.Lista;
 
 import java.io.*;
-import java.util.Queue;
 
 public class CursoRepository {
 
@@ -12,10 +13,10 @@ public class CursoRepository {
     private static final String FILE_PATH = DIRECTORY + "/" + FILE_NAME;
 
     public CursoRepository() {
-        createDirectoryAndFile();
+        criarCsv();
     }
 
-    private void createDirectoryAndFile() {
+    private void criarCsv() {
 
         try {
             File dir = new File(DIRECTORY);
@@ -30,27 +31,24 @@ public class CursoRepository {
         } catch (IOException e) {
             throw new RuntimeException("Erro ao criar diretorio ou arquivo: " + e.getMessage());
         }
-
     }
 
     public void save(String csvCurso) throws IOException {
         FileWriter fw = null;
         PrintWriter pw = null;
 
-        try {
-            fw = new FileWriter(FILE_PATH, true);
-            pw = new PrintWriter(fw);
-            pw.write(csvCurso);
-            pw.write("\r\n");
-            pw.flush();
-        } finally {
-            if (pw != null) pw.close();
-            if (fw != null) fw.close();
-        }
+        fw = new FileWriter(FILE_PATH, true);
+        pw = new PrintWriter(fw);
+        pw.write(csvCurso);
+        pw.write("\r\n");
+        pw.flush();
+
+        if (pw != null) pw.close();
+        if (fw != null) fw.close();
     }
 
-    public Queue buscarPorCodigoComFila(String codigo) throws IOException {
-        Queue fila = new Queue();
+    public Fila buscarPorCodigoComFila(String codigo) throws IOException {
+        Fila fila = new Fila();
         File file = new File(FILE_PATH);
 
         if (!file.exists()) {
@@ -60,33 +58,30 @@ public class CursoRepository {
         FileReader fr = null;
         BufferedReader br = null;
 
-        try {
-            fr = new FileReader(file);
-            br = new BufferedReader(fr);
-            String linha = br.readLine();
+        fr = new FileReader(file);
+        br = new BufferedReader(fr);
+        String linha = br.readLine();
 
-            while (linha != null) {
-                String[] vetLinha = linha.split(";");
-                if (vetLinha[0].equals(codigo)) {
-                    Curso curso = new Curso();
-                    curso.setCodigo(vetLinha[0]);
-                    curso.setNome(vetLinha[1]);
-                    curso.setAreaConhecimento(vetLinha[2]);
-                    fila.enqueue(curso);
-                    break;
-                }
-                linha = br.readLine();
+        while (linha != null) {
+            String[] vetLinha = linha.split(";");
+            if (vetLinha[0].equals(codigo)) {
+                Curso curso = new Curso();
+                curso.setCodigo(vetLinha[0]);
+                curso.setNome(vetLinha[1]);
+                curso.setAreaConhecimento(vetLinha[2]);
+                fila.insert(curso);
+                break;
             }
-        } finally {
-            if (br != null) br.close();
-            if (fr != null) fr.close();
+            linha = br.readLine();
         }
+        if (br != null) br.close();
+        if (fr != null) fr.close();
 
         return fila;
     }
 
-    public ListaSimples loadAllToList() throws IOException {
-        ListaSimples lista = new ListaSimples();
+    public Lista buscarTodosComLista() throws Exception {
+        Lista lista = new Lista();
         File file = new File(FILE_PATH);
 
         if (!file.exists()) {
@@ -96,48 +91,41 @@ public class CursoRepository {
         FileReader fr = null;
         BufferedReader br = null;
 
-        try {
-            fr = new FileReader(file);
-            br = new BufferedReader(fr);
-            String linha = br.readLine();
+        fr = new FileReader(file);
+        br = new BufferedReader(fr);
+        String linha = br.readLine();
 
-            while (linha != null) {
-                String[] vetLinha = linha.split(";");
-                Curso curso = new Curso();
-                curso.setCodigo(vetLinha[0]);
-                curso.setNome(vetLinha[1]);
-                curso.setAreaConhecimento(vetLinha[2]);
-                lista.add(curso);
-                linha = br.readLine();
-            }
-        } finally {
-            if (br != null) br.close();
-            if (fr != null) fr.close();
+        while (linha != null) {
+            String[] vetLinha = linha.split(";");
+            Curso curso = new Curso();
+            curso.setCodigo(vetLinha[0]);
+            curso.setNome(vetLinha[1]);
+            curso.setAreaConhecimento(vetLinha[2]);
+            lista.addLast(curso);
+            linha = br.readLine();
         }
+        if (br != null) br.close();
+        if (fr != null) fr.close();
 
         return lista;
-
     }
 
-    public void saveAll(ListaSimples lista) throws IOException {
+    public void saveAll(Lista lista) throws Exception {
         FileWriter fw = null;
         PrintWriter pw = null;
 
-        try {
-            fw = new FileWriter(FILE_PATH, false);
-            pw = new PrintWriter(fw);
+        fw = new FileWriter(FILE_PATH, false);
+        pw = new PrintWriter(fw);
 
-            for (int i = 0; i < lista.size(); i++) {
-                Curso curso = (Curso) lista.get(i);
-                pw.write(curso.toString());
-                pw.write("\r\n");
-            }
-
-            pw.flush();
-        } finally {
-            if (pw != null) pw.close();
-            if (fw != null) fw.close();
+        for (int i = 0; i < lista.size(); i++) {
+            Curso curso = (Curso) lista.get(i);
+            pw.write(curso.toString());
+            pw.write("\r\n");
         }
+        pw.flush();
+
+        if (pw != null) pw.close();
+        if (fw != null) fw.close();
     }
 
 }

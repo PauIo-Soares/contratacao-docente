@@ -6,11 +6,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import estrutura.Fila;
+import estrutura.Lista;
 import model.Professor;
 import persistence.ProfessorRepository;
 
 import java.io.IOException;
-import java.util.Queue;
 
 public class ProfessorController implements EventHandler<ActionEvent> {
     private TextField txtCpf;
@@ -20,9 +21,7 @@ public class ProfessorController implements EventHandler<ActionEvent> {
     private TextArea txtAreaResultado;
     private ProfessorRepository repository;
 
-    public ProfessorController(TextField txtCpf, TextField txtNome,
-                               TextField txtAreaPretensao, TextField txtPontuacao,
-                               TextArea txtAreaResultado) {
+    public ProfessorController(TextField txtCpf, TextField txtNome, TextField txtAreaPretensao, TextField txtPontuacao, TextArea txtAreaResultado) {
         this.txtCpf = txtCpf;
         this.txtNome = txtNome;
         this.txtAreaPretensao = txtAreaPretensao;
@@ -51,136 +50,112 @@ public class ProfessorController implements EventHandler<ActionEvent> {
         }
     }
 
-    private void cadastrar() {
-        try {
-            String cpf = txtCpf.getText().trim();
-            String nome = txtNome.getText().trim();
-            String area = txtAreaPretensao.getText().trim();
-            String pontuacao = txtPontuacao.getText().trim();
+    private void cadastrar() throws IOException {
 
-            if (cpf.isEmpty() || nome.isEmpty() || area.isEmpty() || pontuacao.isEmpty()) {
-                showError("Todos os campos devem ser preenchidos");
-                return;
-            }
+        String cpf = txtCpf.getText().trim();
+        String nome = txtNome.getText().trim();
+        String area = txtAreaPretensao.getText().trim();
+        String pontuacao = txtPontuacao.getText().trim();
 
-            int pontos = Integer.parseInt(pontuacao);
-
-            Professor professor = new Professor(cpf, nome, area, pontos);
-            repository.save(professor.toString());
-
-            txtAreaResultado.setText("Professor cadastrado com sucesso!");
-            limparCampos();
-        } catch (NumberFormatException e) {
-            showError("Pontuacao deve ser um numero");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (cpf.isEmpty() || nome.isEmpty() || area.isEmpty() || pontuacao.isEmpty()) {
+            showError("Todos os campos devem ser preenchidos");
+            return;
         }
+
+        Professor professor = new Professor(cpf, nome, area, pontuacao);
+        repository.save(professor.toString());
+        txtAreaResultado.setText("Professor cadastrado com sucesso!");
+        limparCampos();
     }
 
-    private void buscar() {
-        try {
-            String cpf = txtCpf.getText().trim();
+    private void buscar() throws Exception {
 
-            if (cpf.isEmpty()) {
-                showError("Informe o CPF do professor");
-                return;
-            }
+        String cpf = txtCpf.getText().trim();
 
-            Queue fila = repository.buscarPorCpfComFila(cpf);
-
-            if (fila.isEmpty()) {
-                txtAreaResultado.setText("Professor nao encontrado");
-            } else {
-                Professor professor = (Professor) fila.dequeue();
-                StringBuilder sb = new StringBuilder();
-                sb.append("CPF: ").append(professor.getCpf()).append("\n");
-                sb.append("Nome: ").append(professor.getNome()).append("\n");
-                sb.append("Area Pretensao: ").append(professor.getAreaPretensao()).append("\n");
-                sb.append("Pontuacao: ").append(professor.getPontuacao());
-                txtAreaResultado.setText(sb.toString());
-            }
-
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (cpf.isEmpty()) {
+            showError("Informe o CPF do professor");
+            return;
         }
+
+        Fila fila = repository.buscarPorCpfComFila(cpf);
+
+        if (fila.isEmpty()) {
+            txtAreaResultado.setText("Professor nao encontrado");
+        } else {
+            Professor professor = (Professor) fila.remove();
+            StringBuilder sb = new StringBuilder();
+            sb.append("CPF: ").append(professor.getCpf()).append("\n");
+            sb.append("Nome: ").append(professor.getNome()).append("\n");
+            sb.append("Area Pretensao: ").append(professor.getAreaPretensao()).append("\n");
+            sb.append("Pontuacao: ").append(professor.getPontuacao());
+            txtAreaResultado.setText(sb.toString());
+        }
+        limparCampos();
     }
 
-    private void atualizar() {
-        try {
-            String cpf = txtCpf.getText().trim();
-            String nome = txtNome.getText().trim();
-            String area = txtAreaPretensao.getText().trim();
-            String pontuacao = txtPontuacao.getText().trim();
+    private void atualizar() throws Exception {
 
-            if (cpf.isEmpty() || nome.isEmpty() || area.isEmpty() || pontuacao.isEmpty()) {
-                showError("Todos os campos devem ser preenchidos");
-                return;
-            }
+        String cpf = txtCpf.getText().trim();
+        String nome = txtNome.getText().trim();
+        String area = txtAreaPretensao.getText().trim();
+        String pontuacao = txtPontuacao.getText().trim();
 
-            int pontos = Integer.parseInt(pontuacao);
-
-            ListaSimples lista = repository.loadAllToList();
-            boolean encontrado = false;
-
-            for (int i = 0; i < lista.size(); i++) {
-                Professor p = (Professor) lista.get(i);
-                if (p.getCpf().equals(cpf)) {
-                    p.setNome(nome);
-                    p.setAreaPretensao(area);
-                    p.setPontuacao(pontos);
-                    encontrado = true;
-                    break;
-                }
-            }
-
-            if (encontrado) {
-                repository.saveAll(lista);
-                txtAreaResultado.setText("Professor atualizado com sucesso!");
-            } else {
-                txtAreaResultado.setText("Professor nao encontrado");
-            }
-
-            limparCampos();
-        } catch (NumberFormatException e) {
-            showError("Pontuacao deve ser um numero");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (cpf.isEmpty() || nome.isEmpty() || area.isEmpty() || pontuacao.isEmpty()) {
+            showError("Todos os campos devem ser preenchidos");
+            return;
         }
+
+        Lista lista = repository.buscarTodosComLista();
+        boolean encontrado = false;
+
+        for (int i = 0; i < lista.size(); i++) {
+            Professor p = (Professor) lista.get(i);
+            if (p.getCpf().equals(cpf)) {
+                p.setNome(nome);
+                p.setAreaPretensao(area);
+                p.setPontuacao(pontuacao);
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (encontrado) {
+            repository.saveAll(lista);
+            txtAreaResultado.setText("Professor atualizado com sucesso!");
+        } else {
+            txtAreaResultado.setText("Professor nao encontrado");
+        }
+        limparCampos();
     }
 
-    private void remover() {
-        try {
-            String cpf = txtCpf.getText().trim();
+    private void remover() throws Exception {
 
-            if (cpf.isEmpty()) {
-                showError("Informe o CPF do professor");
-                return;
-            }
+        String cpf = txtCpf.getText().trim();
 
-            ListaSimples lista = repository.loadAllToList();
-            boolean encontrado = false;
-
-            for (int i = 0; i < lista.size(); i++) {
-                Professor p = (Professor) lista.get(i);
-                if (p.getCpf().equals(cpf)) {
-                    lista.remove(i);
-                    encontrado = true;
-                    break;
-                }
-            }
-
-            if (encontrado) {
-                repository.saveAll(lista);
-                txtAreaResultado.setText("Professor removido com sucesso!");
-            } else {
-                txtAreaResultado.setText("Professor nao encontrado");
-            }
-
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (cpf.isEmpty()) {
+            showError("Informe o CPF do professor");
+            return;
         }
+
+        Lista lista = repository.buscarTodosComLista();
+        boolean encontrado = false;
+
+        for (int i = 0; i < lista.size(); i++) {
+            Professor p = (Professor) lista.get(i);
+            if (p.getCpf().equals(cpf)) {
+                lista.remove(i);
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (encontrado) {
+            repository.saveAll(lista);
+            txtAreaResultado.setText("Professor removido com sucesso!");
+        } else {
+            txtAreaResultado.setText("Professor nao encontrado");
+        }
+        limparCampos();
     }
 
     private void limparCampos() {
@@ -197,4 +172,5 @@ public class ProfessorController implements EventHandler<ActionEvent> {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
 }

@@ -7,6 +7,17 @@ public class Professor {
     private String areaPretensao;
     private String pontuacao;
 
+    public Professor() {
+        super();
+    }
+
+    public Professor(String cpf, String nome, String areaPretensao, String pontuacao) {
+        this.cpf = cpf;
+        this.nome = nome;
+        this.areaPretensao = areaPretensao;
+        this.pontuacao = pontuacao;
+    }
+
     public String getCpf() {
         return cpf;
     }
@@ -37,6 +48,14 @@ public class Professor {
 
     public void setPontuacao(String pontuacao) {
         this.pontuacao = pontuacao;
+    }
+
+    public int getPontuacaoInt() {
+        try {
+            return Integer.parseInt(pontuacao);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @Override

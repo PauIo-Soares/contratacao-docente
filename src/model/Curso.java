@@ -6,6 +6,16 @@ public class Curso {
     private String nome;
     private String areaConhecimento;
 
+    public Curso() {
+        super();
+    }
+
+    public Curso(String codigo, String nome, String areaConhecimento) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.areaConhecimento = areaConhecimento;
+    }
+
     public String getCodigo() {
         return codigo;
     }

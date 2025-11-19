@@ -6,12 +6,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import estrutura.Fila;
 import model.Inscricao;
+import estrutura.Lista;
 import persistence.InscricaoRepository;
 import persistence.ProfessorRepository;
 
 import java.io.IOException;
-import java.util.Queue;
 
 public class InscricaoController implements EventHandler<ActionEvent> {
     private TextField txtCodigoProcesso;
@@ -21,8 +22,7 @@ public class InscricaoController implements EventHandler<ActionEvent> {
     private InscricaoRepository repository;
     private ProfessorRepository professorRepository;
 
-    public InscricaoController(TextField txtCodigoProcesso, TextField txtCpfProfessor,
-                               TextField txtCodigoDisciplina, TextArea txtAreaResultado) {
+    public InscricaoController(TextField txtCodigoProcesso, TextField txtCpfProfessor, TextField txtCodigoDisciplina, TextArea txtAreaResultado) {
         this.txtCodigoProcesso = txtCodigoProcesso;
         this.txtCpfProfessor = txtCpfProfessor;
         this.txtCodigoDisciplina = txtCodigoDisciplina;
@@ -51,134 +51,113 @@ public class InscricaoController implements EventHandler<ActionEvent> {
         }
     }
 
-    private void cadastrar() {
-        try {
-            String codigoProcesso = txtCodigoProcesso.getText().trim();
-            String cpfProfessor = txtCpfProfessor.getText().trim();
-            String codigoDisciplina = txtCodigoDisciplina.getText().trim();
+    private void cadastrar() throws IOException {
+        String codigoProcesso = txtCodigoProcesso.getText().trim();
+        String cpfProfessor = txtCpfProfessor.getText().trim();
+        String codigoDisciplina = txtCodigoDisciplina.getText().trim();
 
-            if (codigoProcesso.isEmpty() || cpfProfessor.isEmpty() || codigoDisciplina.isEmpty()) {
-                showError("Todos os campos devem ser preenchidos");
-                return;
-            }
-
-            if (!professorRepository.professorExists(cpfProfessor)) {
-                showError("Professor nao cadastrado no sistema");
-                return;
-            }
-
-            Inscricao inscricao = new Inscricao(codigoProcesso, cpfProfessor, codigoDisciplina);
-            repository.save(inscricao.toString());
-
-            txtAreaResultado.setText("Inscricao cadastrada com sucesso!");
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (codigoProcesso.isEmpty() || cpfProfessor.isEmpty() || codigoDisciplina.isEmpty()) {
+            showError("Todos os campos devem ser preenchidos");
+            return;
         }
+
+        if (!professorRepository.professorExists(cpfProfessor)) {
+            showError("Professor nao cadastrado no sistema");
+            return;
+        }
+        Inscricao inscricao = new Inscricao(codigoProcesso, cpfProfessor, codigoDisciplina);
+        repository.save(inscricao.toString());
+        txtAreaResultado.setText("Inscricao cadastrada com sucesso!");
+        limparCampos();
     }
 
-    private void buscar() {
-        try {
-            String codigoProcesso = txtCodigoProcesso.getText().trim();
+    private void buscar() throws Exception {
+        String codigoProcesso = txtCodigoProcesso.getText().trim();
 
-            if (codigoProcesso.isEmpty()) {
-                showError("Informe o codigo do processo");
-                return;
-            }
-
-            Queue fila = repository.buscarPorCodigoProcessoComFila(codigoProcesso);
-
-            if (fila.isEmpty()) {
-                txtAreaResultado.setText("Inscricao nao encontrada");
-            } else {
-                Inscricao inscricao = (Inscricao) fila.dequeue();
-                StringBuilder sb = new StringBuilder();
-                sb.append("Codigo Processo: ").append(inscricao.getCodigoProcesso()).append("\n");
-                sb.append("CPF Professor: ").append(inscricao.getCpfProfessor()).append("\n");
-                sb.append("Codigo Disciplina: ").append(inscricao.getCodigoDisciplina());
-                txtAreaResultado.setText(sb.toString());
-            }
-
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (codigoProcesso.isEmpty()) {
+            showError("Informe o codigo do processo");
+            return;
         }
+
+        Fila fila = repository.buscarPorCodigoProcessoComFila(codigoProcesso);
+
+        if (fila.isEmpty()) {
+            txtAreaResultado.setText("Inscricao nao encontrada");
+        } else {
+            Inscricao inscricao = (Inscricao) fila.remove();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Codigo Processo: ").append(inscricao.getCodigoProcesso()).append("\n");
+            sb.append("CPF Professor: ").append(inscricao.getCpfProfessor()).append("\n");
+            sb.append("Codigo Disciplina: ").append(inscricao.getCodigoDisciplina());
+            txtAreaResultado.setText(sb.toString());
+        }
+        limparCampos();
     }
 
-    private void atualizar() {
-        try {
-            String codigoProcesso = txtCodigoProcesso.getText().trim();
-            String cpfProfessor = txtCpfProfessor.getText().trim();
-            String codigoDisciplina = txtCodigoDisciplina.getText().trim();
+    private void atualizar() throws Exception {
+        String codigoProcesso = txtCodigoProcesso.getText().trim();
+        String cpfProfessor = txtCpfProfessor.getText().trim();
+        String codigoDisciplina = txtCodigoDisciplina.getText().trim();
 
-            if (codigoProcesso.isEmpty() || cpfProfessor.isEmpty() || codigoDisciplina.isEmpty()) {
-                showError("Todos os campos devem ser preenchidos");
-                return;
-            }
-
-            if (!professorRepository.professorExists(cpfProfessor)) {
-                showError("Professor nao cadastrado no sistema");
-                return;
-            }
-
-            ListaSimples lista = repository.loadAllToList();
-            boolean encontrado = false;
-
-            for (int i = 0; i < lista.size(); i++) {
-                Inscricao insc = (Inscricao) lista.get(i);
-                if (insc.getCodigoProcesso().equals(codigoProcesso)) {
-                    insc.setCpfProfessor(cpfProfessor);
-                    insc.setCodigoDisciplina(codigoDisciplina);
-                    encontrado = true;
-                    break;
-                }
-            }
-
-            if (encontrado) {
-                repository.saveAll(lista);
-                txtAreaResultado.setText("Inscricao atualizada com sucesso!");
-            } else {
-                txtAreaResultado.setText("Inscricao nao encontrada");
-            }
-
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (codigoProcesso.isEmpty() || cpfProfessor.isEmpty() || codigoDisciplina.isEmpty()) {
+            showError("Todos os campos devem ser preenchidos");
+            return;
         }
+
+        if (!professorRepository.professorExists(cpfProfessor)) {
+            showError("Professor nao cadastrado no sistema");
+            return;
+        }
+
+        Lista lista = repository.buscarTodosComLista();
+        boolean encontrado = false;
+
+        for (int i = 0; i < lista.size(); i++) {
+            Inscricao insc = (Inscricao) lista.get(i);
+            if (insc.getCodigoProcesso().equals(codigoProcesso)) {
+                insc.setCpfProfessor(cpfProfessor);
+                insc.setCodigoDisciplina(codigoDisciplina);
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (encontrado) {
+            repository.saveAll(lista);
+            txtAreaResultado.setText("Inscricao atualizada com sucesso!");
+        } else {
+            txtAreaResultado.setText("Inscricao nao encontrada");
+        }
+        limparCampos();
     }
 
-    private void remover() {
-        try {
-            String codigoProcesso = txtCodigoProcesso.getText().trim();
+    private void remover() throws Exception {
+        String codigoProcesso = txtCodigoProcesso.getText().trim();
 
-            if (codigoProcesso.isEmpty()) {
-                showError("Informe o codigo do processo");
-                return;
-            }
-
-            ListaSimples lista = repository.loadAllToList();
-            boolean encontrado = false;
-
-            for (int i = 0; i < lista.size(); i++) {
-                Inscricao insc = (Inscricao) lista.get(i);
-                if (insc.getCodigoProcesso().equals(codigoProcesso)) {
-                    lista.remove(i);
-                    encontrado = true;
-                    break;
-                }
-            }
-
-            if (encontrado) {
-                repository.saveAll(lista);
-                txtAreaResultado.setText("Inscricao removida com sucesso!");
-            } else {
-                txtAreaResultado.setText("Inscricao nao encontrada");
-            }
-
-            limparCampos();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (codigoProcesso.isEmpty()) {
+            showError("Informe o codigo do processo");
+            return;
         }
+
+        Lista lista = repository.buscarTodosComLista();
+        boolean encontrado = false;
+
+        for (int i = 0; i < lista.size(); i++) {
+            Inscricao insc = (Inscricao) lista.get(i);
+            if (insc.getCodigoProcesso().equals(codigoProcesso)) {
+                lista.remove(i);
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (encontrado) {
+            repository.saveAll(lista);
+            txtAreaResultado.setText("Inscricao removida com sucesso!");
+        } else {
+            txtAreaResultado.setText("Inscricao nao encontrada");
+        }
+        limparCampos();
     }
 
     private void limparCampos() {
@@ -194,4 +173,5 @@ public class InscricaoController implements EventHandler<ActionEvent> {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
 }

@@ -9,6 +9,19 @@ public class Disciplina {
     private String quantidadeHorasDiarias;
     private String codigoCurso;
 
+    public Disciplina() {
+        super();
+    }
+
+    public Disciplina(String codigo, String nome, String diaSemana, String horarioInicial, String quantidadeHorasDiarias, String codigoCurso) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.diaSemana = diaSemana;
+        this.horarioInicial = horarioInicial;
+        this.quantidadeHorasDiarias = quantidadeHorasDiarias;
+        this.codigoCurso = codigoCurso;
+    }
+
     public String getCodigo() {
         return codigo;
     }

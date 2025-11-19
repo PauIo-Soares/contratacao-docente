@@ -4,14 +4,13 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import estrutura.Fila;
 import model.Inscricao;
+import estrutura.Lista;
 import model.Professor;
 import persistence.InscricaoRepository;
 import persistence.ProfessorRepository;
-
-
-import java.io.IOException;
-import java.util.Queue;
+import util.QuickSort;
 
 public class ConsultaInscritos extends VBox {
     private TextField txtCodigoDisciplina;
@@ -55,21 +54,21 @@ public class ConsultaInscritos extends VBox {
                 return;
             }
 
-            ListaSimples inscricoes = inscricaoRepository.buscarInscricoesPorDisciplina(codigoDisciplina);
+            Lista inscricoes = inscricaoRepository.buscarInscricoesPorDisciplina(codigoDisciplina);
 
             if (inscricoes.size() == 0) {
                 txtAreaResultado.setText("Nenhuma inscricao encontrada para esta disciplina");
                 return;
             }
 
-            ListaSimples professores = new ListaSimples();
+            Lista professores = new Lista();
 
             for (int i = 0; i < inscricoes.size(); i++) {
                 Inscricao insc = (Inscricao) inscricoes.get(i);
-                Queue fila = professorRepository.buscarPorCpfComFila(insc.getCpfProfessor());
+                Fila fila = professorRepository.buscarPorCpfComFila(insc.getCpfProfessor());
                 if (!fila.isEmpty()) {
-                    Professor prof = (Professor) fila.dequeue();
-                    professores.add(prof);
+                    Professor prof = (Professor) fila.remove();
+                    professores.addLast(prof);
                 }
             }
 
@@ -85,10 +84,8 @@ public class ConsultaInscritos extends VBox {
                 sb.append("Area Pretensao: ").append(prof.getAreaPretensao()).append("\n");
                 sb.append("Pontuacao: ").append(prof.getPontuacao()).append("\n");
             }
-
             txtAreaResultado.setText(sb.toString());
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             showError("Erro: " + e.getMessage());
         }
     }
@@ -100,4 +97,5 @@ public class ConsultaInscritos extends VBox {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
 }

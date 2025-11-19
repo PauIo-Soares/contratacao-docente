@@ -6,6 +6,16 @@ public class Inscricao {
     private String cpfProfessor;
     private String codigoDisciplina;
 
+    public Inscricao() {
+        super();
+    }
+
+    public Inscricao(String codigoProcesso, String cpfProfessor, String codigoDisciplina) {
+        this.codigoProcesso = codigoProcesso;
+        this.cpfProfessor = cpfProfessor;
+        this.codigoDisciplina = codigoDisciplina;
+    }
+
     public String getCodigoProcesso() {
         return codigoProcesso;
     }
