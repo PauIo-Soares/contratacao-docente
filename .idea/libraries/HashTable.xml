@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="HashTable">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/HashTable.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/HashTable.jar!/" />
+    </SOURCES>
+  </library>
+</component>

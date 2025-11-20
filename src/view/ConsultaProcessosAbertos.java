@@ -6,12 +6,11 @@ import javafx.scene.layout.VBox;
 import model.Curso;
 import model.Disciplina;
 import estrutura.Fila;
-import estrutura.Lista;
 import persistence.CursoRepository;
 import persistence.DisciplinaRepository;
 import persistence.InscricaoRepository;
-
-import java.io.IOException;
+import structure.HashTable;
+import structure.Lista;
 
 public class ConsultaProcessosAbertos extends VBox {
     private TextArea txtAreaResultado;
@@ -31,7 +30,13 @@ public class ConsultaProcessosAbertos extends VBox {
         lblTitulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Button btnConsultar = new Button("Consultar Processos Abertos");
-        btnConsultar.setOnAction(e -> consultar());
+        btnConsultar.setOnAction(e -> {
+            try {
+                consultar();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         Label lblResultado = new Label("Resultado:");
         txtAreaResultado = new TextArea();
@@ -40,60 +45,53 @@ public class ConsultaProcessosAbertos extends VBox {
 
         getChildren().addAll(lblTitulo, btnConsultar, lblResultado, txtAreaResultado);
     }
-//    TODO
-    private void consultar() {
-//        try {
-//            HashTable hashTable = inscricaoRepository.getProcessosAbertosHashTable();
-//
-//            if (hashTable.size() == 0) {
-//                txtAreaResultado.setText("Nenhum processo aberto encontrado");
-//                return;
-//            }
-//
-//            Lista codigosDisciplinas = hashTable.getKeys();
-//
-//            if (codigosDisciplinas.size() == 0) {
-//                txtAreaResultado.setText("Nenhum processo aberto encontrado");
-//                return;
-//            }
-//
-//            StringBuilder sb = new StringBuilder();
-//
-//            for (int i = 0; i < codigosDisciplinas.size(); i++) {
-//                String codigoDisciplina = (String) codigosDisciplinas.get(i);
-//
-//                Fila filaDisciplina = disciplinaRepository.buscarPorCodigoComFila(codigoDisciplina);
-//
-//                if (!filaDisciplina.isEmpty()) {
-//                    Disciplina disciplina = (Disciplina) filaDisciplina.remove();
-//
-//                    Fila filaCurso = cursoRepository.buscarPorCodigoComFila(disciplina.getCodigoCurso());
-//
-//                    sb.append("========================\n");
-//                    sb.append("DISCIPLINA:\n");
-//                    sb.append("Codigo: ").append(disciplina.getCodigo()).append("\n");
-//                    sb.append("Nome: ").append(disciplina.getNome()).append("\n");
-//                    sb.append("Dia Semana: ").append(disciplina.getDiaSemana()).append("\n");
-//                    sb.append("Horario: ").append(disciplina.getHorarioInicial()).append("\n");
-//                    sb.append("Horas: ").append(disciplina.getQuantidadeHorasDiarias()).append("\n");
-//
-//                    if (!filaCurso.isEmpty()) {
-//                        Curso curso = (Curso) filaCurso.remove();
-//                        sb.append("\nCURSO:\n");
-//                        sb.append("Codigo: ").append(curso.getCodigo()).append("\n");
-//                        sb.append("Nome: ").append(curso.getNome()).append("\n");
-//                        sb.append("Area: ").append(curso.getAreaConhecimento()).append("\n");
-//                    }
-//
-//                    sb.append("\n");
-//                }
-//            }
-//
-//            txtAreaResultado.setText(sb.toString());
-//
-//        } catch (IOException e) {
-//            showError("Erro: " + e.getMessage());
-//        }
+
+    private void consultar() throws Exception {
+        HashTable hashTable = inscricaoRepository.getProcessosAbertosHashTable();
+
+        if (hashTable.size() == 0) {
+            txtAreaResultado.setText("Nenhum processo aberto encontrado");
+            return;
+        }
+
+        Lista codigosDisciplinas = hashTable.getKeys();
+
+        if (codigosDisciplinas.size() == 0) {
+            txtAreaResultado.setText("Nenhum processo aberto encontrado");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < codigosDisciplinas.size(); i++) {
+            String codigoDisciplina = (String) codigosDisciplinas.get(i);
+
+            Fila filaDisciplina = disciplinaRepository.buscarPorCodigoComFila(codigoDisciplina);
+
+            if (!filaDisciplina.isEmpty()) {
+                Disciplina disciplina = (Disciplina) filaDisciplina.remove();
+
+                Fila filaCurso = cursoRepository.buscarPorCodigoComFila(disciplina.getCodigoCurso());
+
+                sb.append("========================\n");
+                sb.append("DISCIPLINA:\n");
+                sb.append("Codigo: ").append(disciplina.getCodigo()).append("\n");
+                sb.append("Nome: ").append(disciplina.getNome()).append("\n");
+                sb.append("Dia Semana: ").append(disciplina.getDiaSemana()).append("\n");
+                sb.append("Horario: ").append(disciplina.getHorarioInicial()).append("\n");
+                sb.append("Horas: ").append(disciplina.getQuantidadeHorasDiarias()).append("\n");
+
+                if (!filaCurso.isEmpty()) {
+                    Curso curso = (Curso) filaCurso.remove();
+                    sb.append("\nCURSO:\n");
+                    sb.append("Codigo: ").append(curso.getCodigo()).append("\n");
+                    sb.append("Nome: ").append(curso.getNome()).append("\n");
+                    sb.append("Area: ").append(curso.getAreaConhecimento()).append("\n");
+                }
+                sb.append("\n");
+            }
+        }
+        txtAreaResultado.setText(sb.toString());
     }
 
     private void showError(String message) {

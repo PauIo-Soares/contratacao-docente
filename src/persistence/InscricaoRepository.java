@@ -3,6 +3,7 @@ package persistence;
 import estrutura.Fila;
 import model.Inscricao;
 import estrutura.Lista;
+import structure.HashTable;
 
 import java.io.*;
 
@@ -157,48 +158,44 @@ public class InscricaoRepository {
         return lista;
     }
 
-//    public HashTable getProcessosAbertosHashTable() throws IOException {
-//        HashTable hashTable = new HashTable(50);
-//        File file = new File(FILE_PATH);
-//
-//        if (!file.exists()) {
-//            return hashTable;
-//        }
-//
-//        FileReader fr = null;
-//        BufferedReader br = null;
-//        Lista disciplinasAdicionadas = new Lista();
-//
-//        try {
-//            fr = new FileReader(file);
-//            br = new BufferedReader(fr);
-//            String linha = br.readLine();
-//
-//            while (linha != null) {
-//                String[] vetLinha = linha.split(";");
-//                String codigoDisciplina = vetLinha[2];
-//
-//                boolean jaAdicionado = false;
-//                for (int i = 0; i < disciplinasAdicionadas.size(); i++) {
-//                    String cod = (String) disciplinasAdicionadas.get(i);
-//                    if (cod.equals(codigoDisciplina)) {
-//                        jaAdicionado = true;
-//                        break;
-//                    }
-//                }
-//
-//                if (!jaAdicionado) {
-//                    hashTable.put(codigoDisciplina, codigoDisciplina);
-//                    disciplinasAdicionadas.add(codigoDisciplina);
-//                }
-//
-//                linha = br.readLine();
-//            }
-//        } finally {
-//            if (br != null) br.close();
-//            if (fr != null) fr.close();
-//        }
-//
-//        return hashTable;
-//    }
+    public HashTable getProcessosAbertosHashTable() throws Exception {
+        HashTable hashTable = new HashTable(50);
+        File file = new File(FILE_PATH);
+
+        if (!file.exists()) {
+            return hashTable;
+        }
+
+        FileReader fr = null;
+        BufferedReader br = null;
+        Lista disciplinasAdicionadas = new Lista();
+
+        fr = new FileReader(file);
+        br = new BufferedReader(fr);
+        String linha = br.readLine();
+
+        while (linha != null) {
+            String[] vetLinha = linha.split(";");
+            String codigoDisciplina = vetLinha[2];
+
+            boolean jaAdicionado = false;
+            for (int i = 0; i < disciplinasAdicionadas.size(); i++) {
+                String cod = (String) disciplinasAdicionadas.get(i);
+                if (cod.equals(codigoDisciplina)) {
+                    jaAdicionado = true;
+                    break;
+                }
+            }
+            if (!jaAdicionado) {
+                hashTable.put(codigoDisciplina, codigoDisciplina);
+                disciplinasAdicionadas.addLast(codigoDisciplina);
+            }
+            linha = br.readLine();
+        }
+        if (br != null) br.close();
+        if (fr != null) fr.close();
+
+        return hashTable;
+    }
+
 }

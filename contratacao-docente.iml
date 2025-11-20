@@ -11,5 +11,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="Fila" level="project" />
+    <orderEntry type="library" name="ListaSimples" level="project" />
+    <orderEntry type="library" name="HashTable" level="project" />
   </component>
 </module>
