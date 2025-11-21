@@ -85,7 +85,7 @@ Sistema desenvolvido com JavaFX para gerenciar o processo de contratação tempo
 ## 📚 Estruturas de Dados Utilizadas
 
 - ListaSimples  
-- Queue (Fila)  
+- Fila
 - QuickSort  
 - HashTable  
 
@@ -106,7 +106,7 @@ O sistema segue o padrão MVC:
 - **Model**: Entidades de domínio  
 - **View**: Interface gráfica JavaFX  
 - **Controller**: Lógica de negócio  
-- **Persistence**: Repositórios (acesso aos arquivos CSV)  
+- **Persistence**: Repository (acesso aos arquivos CSV)  
 
 ---
 
