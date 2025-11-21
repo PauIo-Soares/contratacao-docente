@@ -20,53 +20,55 @@ Sistema desenvolvido com JavaFX para gerenciar o processo de contratação tempo
 
 ## 📁 Estrutura do Projeto
 
+```text
 /contratacao-docente
 ├── csv/
-│ ├── disciplinas.csv
-│ ├── cursos.csv
-│ ├── professores.csv
-│ └── inscricoes.csv
+│   ├── disciplinas.csv
+│   ├── cursos.csv
+│   ├── professores.csv
+│   └── inscricoes.csv
 │
 ├── doc/
-│ └── diagrama.png
+│   └── diagrama.png
 │
 ├── lib/
-│ ├── ListaSimples.jar
-│ ├── Fila.jar
-│ └── HashTable.jar
+│   ├── ListaSimples.jar
+│   ├── Fila.jar
+│   └── HashTable.jar
 │
 ├── src/
-├── application/
-│ └── MainApp.java
-│
-├── controller/
-│ ├── CursoController.java
-│ ├── DisciplinaController.java
-│ ├── ProfessorController.java
-│ └── InscricaoController.java
-│
-├── persistence/
-│ ├── CursoRepository.java
-│ ├── DisciplinaRepository.java
-│ ├── ProfessorRepository.java
-│ └── InscricaoRepository.java
-│
-├── model/
-│ ├── Curso.java
-│ ├── Disciplina.java
-│ ├── Professor.java
-│ └── Inscricao.java
-│
-├── view/
-│ ├── CursoView.java
-│ ├── DisciplinaView.java
-│ ├── ProfessorView.java
-│ ├── InscricaoView.java
-│ ├── ConsultaInscritos.java
-│ └── ConsultaProcessosAbertos.java
-│
-└── util/
-└── QuickSort.java
+│   ├── application/
+│   │   └── MainApp.java
+│   │
+│   ├── controller/
+│   │   ├── CursoController.java
+│   │   ├── DisciplinaController.java
+│   │   ├── ProfessorController.java
+│   │   └── InscricaoController.java
+│   │
+│   ├── persistence/
+│   │   ├── CursoRepository.java
+│   │   ├── DisciplinaRepository.java
+│   │   ├── ProfessorRepository.java
+│   │   └── InscricaoRepository.java
+│   │
+│   ├── model/
+│   │   ├── Curso.java
+│   │   ├── Disciplina.java
+│   │   ├── Professor.java
+│   │   └── Inscricao.java
+│   │
+│   ├── view/
+│   │   ├── CursoView.java
+│   │   ├── DisciplinaView.java
+│   │   ├── ProfessorView.java
+│   │   ├── InscricaoView.java
+│   │   ├── ConsultaInscritos.java
+│   │   └── ConsultaProcessosAbertos.java
+│   │
+│   └── util/
+│       └── QuickSort.java
+```
 
 ---
 
