@@ -94,7 +94,7 @@ Sistema desenvolvido com JavaFX para gerenciar o processo de contratação tempo
 ## ▶️ Como Executar
 
 1. Certifique-se de ter as bibliotecas na pasta `lib/`  
-2. Adicione as bibliotecas ao **build path** do projeto no IntelliJ  
+2. Adicione as bibliotecas ao **build path** do projeto  
 3. Execute a classe **MainApp.java**  
 
 ---
